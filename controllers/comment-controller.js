@@ -26,6 +26,24 @@ const commentController = {
             .catch(err => res.json(err));
     },
 
+    // with new replies, we aren't actually creating a reply document; we're simply updating an existing comment
+    // as with addComment() and removeComment(), we're passing params as a parameter which we will pass into addReply() when implemented in the route
+    addReply({ params, body }, res) {
+        Comment.findByIdAndUpdate(
+            { _id: params.commentId },
+            { $push: { replies: body } },
+            { new: true }
+        )
+        .then(dbPizzaData => {
+            if (!dbPizzaData) {
+                res.status(404).json({ message: 'No pizza found with this id' });
+                return;
+            }
+            res.json(dbPizzaData);
+        })
+        .catch(err => res.json(err));
+    },
+
     // create a method to remove comment from pizza
     removeComment({ params }, res) {
         // deletes the document while also returning its data
@@ -49,6 +67,18 @@ const commentController = {
                 // lastly, we return the updated pizza data, now without the _id of the comment in the comments array, and return it to the user
                 res.json(dbPizzaData);
             })
+            .catch(err => res.json(err));
+    },
+
+    // remove a reply
+    removeReply({ params }, res) {
+        Comment.findOneAndUpdate(
+            { _id: params.commentId },
+            // using the $pull operator to remove a specific reply from the replies array where the replyId matches the value of params.replyId passed in from the route
+            { $pull: { replies: { replyId: params.replyId } } },
+            { new: true }
+        )
+            .then(dbPizzaData => res.json(dbPizzaData))
             .catch(err => res.json(err));
     }
 };
