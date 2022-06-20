@@ -53,8 +53,12 @@ const PizzaSchema = new Schema({
 
 // virtuals allow you to add virtual properties to a document that aren't stored in the database; usually computed values that get evaluated when you try to access their properties
 // get total count of comments and replies on retrieval
-PizzaSchema.virtual('commentCount').get(function () {
-    return this.comments.length;
+PizzaSchema.virtual('commentCount').get(function() {
+    // updated from this.comments.length to include all replies as well; here, we use the .reduce() method to tally up the total of every comment with its replies
+    // in its basic form, the .reduce() takes two parameters -> an accumulator and a currentValue; here, the accumulator is total and the currentValue is comment
+    // as .reduce() walks through the array, it passes the accumulating tool and the current value of comment into the function, with the return of the function revising the total for the next iteration through the array
+    // like .map(), the array prototype method .reduce() executes a function on each element in an array; unlike .map(), the .reduce() uses the result of each function execution for each successive computation as it goes through the array; this makes it a perfect candidate for getting a sum of multiple values
+    return this.comments.reduce((total, comment) => total + comment.replies.length + 1, 0);
 });
 
 // create the Pizza model using the PizzaSchhema to get the prebuilt methods that Mongoose provides and export it
