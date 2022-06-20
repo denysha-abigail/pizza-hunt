@@ -1,5 +1,6 @@
 const { Pizza } = require('../models');
 
+// CRUD methods for the /api/pzzas endpoint routes
 const pizzaController = {
     // functions will go here as methods
 
