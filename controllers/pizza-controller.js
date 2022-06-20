@@ -10,6 +10,16 @@ const pizzaController = {
     getAllPizza(req, res) {
         // uses the mongoose .find() method (similar to how Sequelize uses the .findAll() method)
         Pizza.find({})
+            // populate a field by passing in an object with the key path plus the value of the field you want populated
+            .populate({
+                path: 'comments',
+                // tells mongoose that we don't care about the __v field on comments; the - in front indicates that we don't want it to be returned; if we didn't have it, it would mean that it would return ONLY the __v field
+                select: '-__v'
+            })
+            // doesn't include the pizza's __v field when data is returned
+            .select('-__v')
+            // sorts data so that the newest pizza returns first; .sort({ _id: -1 }) sorts in DESC order by _id value
+            .sort({ _id: -1 })
             .then(dbPizzaData => res.json(dbPizzaData))
             .catch(err => {
                 console.log(err);
