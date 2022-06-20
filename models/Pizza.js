@@ -22,7 +22,32 @@ const PizzaSchema = new Schema({
         default: 'Large'
     },
     // indicates an array as the data type; you could also specify Array in place of the brackets
-    toppings: []
+    toppings: [],
+    // connect pizza table with comments table
+    // in mongoose, we can instruct the parent to keep track of its children, not the other way around like in sequelize where we would have to store a reference of the parent data's id with the child data
+    comments: [
+        {
+            // we need to tell mongoose to expect an ObjectId and tell it that its data comes from the Comment model
+            type: Schema.Types.ObjectId,
+            // the ref property tells the Pizza model which documents to search to find the right comments
+            ref: 'Comment'
+        }
+    ]
+},
+    {
+        // we need to tell the schema that it can use virtuals by adding the toJSON property to the schema options
+        toJSON: {
+            virtuals: true,
+        },
+        // we set id to false because this is a virtual that mongoose returns, and we don't need it
+        id: false
+    }
+);
+
+// virtuals allow you to add virtual properties to a document that aren't stored in the database; usually computed values that get evaluated when you try to access their properties
+// get total count of comments and replies on retrieval
+PizzaSchema.virtual('commentCount').get(function () {
+    return this.comments.length;
 });
 
 // create the Pizza model using the PizzaSchhema to get the prebuilt methods that Mongoose provides and export it
