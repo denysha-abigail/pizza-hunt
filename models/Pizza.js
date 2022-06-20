@@ -1,5 +1,7 @@
 // although we could import the entire mongoose library, we only need to worry about the Scema constructor and model function
 const { Schema, model } = require('mongoose');
+// import dateFormat function that doesn't exist on this file
+const dateFormat = require('../utils/dateFormat');
 
 // data to be stored when users create a new pizza: the name of the pizza, the name of the user that created the pizza, a timestamp of when the pizza was created, a timestamp of any updates to the pizza's data, the pizza's suggested size, and the pizza's toppings
 
@@ -15,7 +17,10 @@ const PizzaSchema = new Schema({
     createdAt: {
         type: Date,
         // if no value is provided in this field when the user creates new data, the Date.now function will be executed and will provide a timestamp
-        default: Date.now
+        default: Date.now,
+        // getters: a special type of function that takes the stored data you are looking to retrieve and modifies or formats it upon return; middleware for your data!
+        // transforms the data by default every time it's queried; now, every time we retrieve a pizza, the value in the createdAt field will be formaatted by the dateFormat() function and used instead of the default timestamp value
+        get: (createdAtVal) => dateFormat(createdAtVal)
     },
     size: {
         type: String,
@@ -38,6 +43,8 @@ const PizzaSchema = new Schema({
         // we need to tell the schema that it can use virtuals by adding the toJSON property to the schema options
         toJSON: {
             virtuals: true,
+            // tells the mongoose model that it should use any getter function we've specified
+            getters: true
         },
         // we set id to false because this is a virtual that mongoose returns, and we don't need it
         id: false
