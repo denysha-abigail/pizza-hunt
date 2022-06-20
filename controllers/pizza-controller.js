@@ -49,6 +49,36 @@ const pizzaController = {
     },
 
     // create a method for updating a pizza when we make a request to PUT /api/pizzas/:id
+    // update pizza by id
+    updatePizza({ params, body }, res) {
+        // with the .findOneAndUpdate() method, mongoose finds a single document we want to update, then updates it and returns the updated document
+        // if the third parameter { new: true } is not set, it will return the original document; by setting it to true, we're instructing mongoose to return the new version of the document
+        // methods called .updateOne() and .updateMany() update documents without returning them
+        Pizza.findOneAndUpdate({ _id: params.id }, body, { new: true })
+        .then(dbPizzaData => {
+            if (!dbPizzaData) {
+                res.status(404).json({ message: 'No pizza found with this id!' });
+                return;
+            }
+            res.json(dbPizzaData);
+        })
+        .catch(err => res.status(400).json(err));
+    },
+
+    // create a method for deleting a pizza when we make a request to DELETE /api/pizzas/:id
+    // delete a pizza
+    deletePizza({ params }, res) {
+        // will find the document to be returned and also delete it from the database
+        Pizza.findOneAndDelete({ _id: params.id })
+        .then(dbPizzaData => {
+            if (!dbPizzaData) {
+                res.status(404).json({ message: 'No pizza found with this id!' });
+                return;
+            }
+            res.json(dbPizzaData);
+        })
+        .catch(err => res.status(400).json(err));
+    }
 
 };
 
