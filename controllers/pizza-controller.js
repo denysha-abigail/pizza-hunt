@@ -33,6 +33,12 @@ const pizzaController = {
     getPizzaById({ params }, res) {
         // uses the mongoose .findOne() method to find a single pizza by its _id
         Pizza.findOne({ _id: params.id })
+            .populate({
+                path: 'comments',
+                select: '-__v'
+            })
+            .select('-__v')
+            // no need for the .sort() method here because we'd only be sorting a single pizza!
             .then(dbPizzaData => {
                 // if no pizza is found, send 404
                 if (!dbPizzaData) {
