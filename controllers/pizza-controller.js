@@ -71,7 +71,8 @@ const pizzaController = {
         // with the .findOneAndUpdate() method, mongoose finds a single document we want to update, then updates it and returns the updated document
         // if the third parameter { new: true } is not set, it will return the original document; by setting it to true, we're instructing mongoose to return the new version of the document
         // methods called .updateOne() and .updateMany() update documents without returning them
-        Pizza.findOneAndUpdate({ _id: params.id }, body, { new: true })
+        // runValidators: true is included when updating data so that it knows to validate any new information
+        Pizza.findOneAndUpdate({ _id: params.id }, body, { new: true, runValidators: true })
         .then(dbPizzaData => {
             if (!dbPizzaData) {
                 res.status(404).json({ message: 'No pizza found with this id!' });
