@@ -37,3 +37,20 @@ request.onerror = function(event) {
     console.log(event.target.errorCode);
 };
 
+// with indexedDB, we don't always have a direct connection like in SQL or MongoDB databases; thus, CRUD operations are available at all times; instead, we have to explicitly open a transaction (or temporary connection to the database); this will help the indexedDB database maintain an accurate reading of the data it stores so that data isn't in flux all the time
+
+// this function will be executed if we attempt to submit a new pizza and there's no internet connection
+// this function will be used in the add-pizza.js file's form submission function if the fetch() function's .catch() method is executed --> remember, the fetch() function's .catch() method is only executed on network failure
+function saveRecord(record) {
+    // open a new transaction with the database with read and write permissions
+    const transaction = db.transaction(['new_pizza'], 'readwrite');
+
+    // access the object store for 'new pizza'
+    // once we open that transaction, we directly access the new_pizza object store, because this is where we'll be adding data
+    const pizzaObjectStore = transaction.objectStore('new_pizza');
+
+    // add record to your store with add method
+    // we use the object store's .add() method to insert data into the new_pizza object store
+    pizzaObjectStore.add(record);
+}
+
