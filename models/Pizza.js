@@ -9,10 +9,16 @@ const PizzaSchema = new Schema({
     // define fields with specific data types
     pizzaName: {
         // no need to use special imported data types for the type definition; we simply instruct the schema that this data will adhere to the built-in JavaScript data types, including strings, Booleans, numbers, and so on
-        type: String
+        type: String,
+        // with the mongoose's required field, you can actually provide a custome error message instead of the generic required message 
+        required: 'You need to provide a pizza name!',
+        // removes white space before and after the input string
+        trim: true
     },
     createdBy: {
-        type: String
+        type: String,
+        required: true,
+        trim: true
     },
     createdAt: {
         type: Date,
