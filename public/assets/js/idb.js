@@ -1,4 +1,5 @@
 // create variable to hold db connection
+
 // here, we create a variable db that will store the connected database object when the connection is complete
 let db;
 // establish a connection to IndexedDB database called 'pizza_hunt' and set it to version 1
@@ -27,7 +28,7 @@ request.onsuccess = function(event) {
     // check if app is online, if yes run uploadPizza() function to send all local db data to api
     if (navigator.onLine) {
         // we haven't created this yet, but we will soon, so let's comment it out for now
-        // uploadPizza();
+        uploadPizza();
     }
 };
 
@@ -52,5 +53,56 @@ function saveRecord(record) {
     // add record to your store with add method
     // we use the object store's .add() method to insert data into the new_pizza object store
     pizzaObjectStore.add(record);
+};
+
+// here, we're opening a new transaction to the database to read the data; then we access the object store for new_pizza and execute the .getAll() method to it
+function uploadPizza() {
+    // open a transaction on your db
+    const transaction = db.transaction(['new_pizza'], 'readwrite');
+
+    // access your object store
+    const pizzaObjectStore = transaction.objectStore('new_pizza');
+
+    // get all records from store and set to a variable
+    const getAll = pizzaObjectStore.getAll();
+
+    // upon a successful .getAll() execution, run this function
+    // the getAll.onsuccess event will execute after the .getAll() method completes successfully
+    getAll.onsuccess = function() {
+        // if there was data in indexedDb's store, let's send it to the api server
+        if (getAll.result.length > 0) {
+            fetch('/api/pizzas', {
+                method: 'POST',
+                body: JSON.stringify(getAll.result),
+                headers: {
+                    Accept: 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(serverRespose => {
+                if (serverRespose.message) {
+                    throw new Error(serverRespose);
+                }
+                // open on more transaction
+                const transaction = db.transaction(['new_pizza'], 'readwrite');
+
+                // access the new_pizza object store
+                const pizzaObjectStore = transaction.objectStore('new_pizza');
+
+                // clear all items in your store
+                pizzaObjectStore.clear();
+
+                alert('All saved pizza has been submitted!');
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        }
+    };
 }
 
+// listen for app coming back online
+// here, we instruct the app to listen for the broswer regaining internet connection using the online event
+// if the browser comes back online, we execute the uploadPizza() function automatically
+window.addEventListener('online', uploadPizza);
