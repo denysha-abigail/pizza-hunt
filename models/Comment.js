@@ -41,8 +41,9 @@ const CommentSchema = new Schema({
     },
     createdAt: {
         type: Date,
+        default: Date.now,
         // use toJSON and add getters to all timestamp-related fields
-        default: createdAtVal => dateFormat(createdAtVal)
+        get: createdAtVal => dateFormat(createdAtVal)
     },
     // associate replies with comments
     // unlike the relationship between pizza and comment data, replies will be nested directly in a comment's document and not referred to
